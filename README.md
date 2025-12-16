@@ -18,7 +18,7 @@ This project modifies the standard U-Net by replacing its encoder with a pre-tra
 ---
 ### 📂 Project Structure
 ```text
-.
+ResUNet-Seg
 ├── checkpoints/     # Saved models & training logs (Not included in repo)
 ├── models/          # Model architecture definitions
 │   └── resunet.py   # ResNet50-UNet implementation
