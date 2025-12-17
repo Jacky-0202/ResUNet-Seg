@@ -77,8 +77,7 @@ def get_model_components(device):
         optimizer, 
         T_0=10, 
         T_mult=2, 
-        eta_min=1e-6,
-        verbose=True
+        eta_min=1e-6
     )
     
     return model, loss_fn, optimizer, scaler, scheduler
