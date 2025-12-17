@@ -38,11 +38,11 @@ PALETTE = np.array([
 
 def process_image(img_path, model, device, transform):
     """
-    讀取圖片 -> 預測 -> Resize 回原圖尺寸 -> 回傳 Mask
+    Load Image -> Predict -> Resize back to original dimensions -> Return Mask
     """
     # 1. Load Image & Get Original Size
     original_img = Image.open(img_path).convert('RGB')
-    orig_w, orig_h = original_img.size  # origin size (Width, Height)
+    orig_w, orig_h = original_img.size  # original size (Width, Height)
     
     # 2. Preprocess (Resize to 512x512 for Model)
     input_tensor = transform(original_img).unsqueeze(0).to(device)
@@ -50,18 +50,19 @@ def process_image(img_path, model, device, transform):
     # 3. Inference
     with torch.no_grad():
         output = model(input_tensor)
-        # get 512x512 predict results
+        # Get 512x512 prediction results
         pred_mask_512 = torch.argmax(output, dim=1).squeeze().cpu().numpy().astype(np.uint8)
         
     # 4. Resize Mask back to Original Size
-    # [重要] 必須使用 INTER_NEAREST (最近鄰插值)，才不會破壞類別整數 (例如把 1 和 3 平均成 2)
+    # [IMPORTANT] Must use INTER_NEAREST (nearest neighbor interpolation) to preserve class integers
+    # (e.g., prevents averaging class 1 and 3 into class 2)
     pred_mask_orig = cv2.resize(pred_mask_512, (orig_w, orig_h), interpolation=cv2.INTER_NEAREST)
         
     return pred_mask_orig
 
 def save_mask_only(pred_mask, save_path):
     """
-    只儲存上色後的 Mask
+    Save only the colorized mask
     """
     # 1. Apply Color Map
     # pred_mask (H, W) -> color_mask (H, W, 3)
@@ -89,7 +90,7 @@ def main():
         print(f"❌ Model not found: {MODEL_PATH}")
         return
 
-    # Transform，must be Resize to 512
+    # Transform: Must resize to 512x512 matching training config
     transform = transforms.Compose([
         transforms.Resize((config.IMG_SIZE, config.IMG_SIZE)),
         transforms.ToTensor(),
