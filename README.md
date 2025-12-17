@@ -13,7 +13,7 @@ Designed to be **task-agnostic**, this framework supports both **Binary Classifi
 
 This project modifies the standard U-Net by replacing its encoder with a pre-trained **ResNet50**. This allows the model to leverage transfer learning from ImageNet, resulting in faster convergence and better feature representation.
 
-![Model Architecture](figures/resunet_structure.png)
+![Model Architecture](figures/resunet architecture)
 
 ---
 ### 📂 Project Structure
