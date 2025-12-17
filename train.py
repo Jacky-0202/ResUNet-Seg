@@ -87,7 +87,7 @@ def get_model_components(device):
 def run_epoch(loader, model, optimizer, loss_fn, scaler, device, mode='train'):
     """
     Unified function for both Training and Validation loops.
-    mode: 'train' or 'val'
+    mode: 'train' or 'val' 
     """
     model.train() if mode == 'train' else model.eval()
     loop = tqdm(loader, desc=mode.capitalize(), leave=False)
