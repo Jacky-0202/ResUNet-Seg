@@ -47,7 +47,7 @@ BEST_MODEL_PATH = os.path.join(CHECKPOINT_DIR, "best_model.pth")
 # --- 4. Hyperparameters ---
 LEARNING_RATE = 1e-4
 BATCH_SIZE = 16       # LaPa is 512x512. If OOM, reduce to 4.
-NUM_EPOCHS = 100
+NUM_EPOCHS = 50
 IMG_SIZE = 512       # LaPa standard resolution
 
 # --- 5. Dataset Specifics ---

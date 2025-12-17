@@ -5,7 +5,7 @@ import sys
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
 from tqdm import tqdm
 
 # --- Project Setup ---
@@ -67,11 +67,19 @@ def get_model_components(device):
         ignore_index=config.IGNORE_INDEX
     )
     
-    optimizer = optim.Adam(model.parameters(), lr=config.LEARNING_RATE)
+    # Use AdamW Optimizer
+    optimizer = optim.AdamW(model.parameters(), lr=config.LEARNING_RATE, weight_decay=1e-2)
+    
     scaler = torch.amp.GradScaler()
     
-    scheduler = ReduceLROnPlateau(
-        optimizer, mode='min', factor=0.75, patience=3)
+    # Use Cosine Annealing with Warm Restarts Scheduler
+    scheduler = CosineAnnealingWarmRestarts(
+        optimizer, 
+        T_0=10, 
+        T_mult=2, 
+        eta_min=1e-6,
+        verbose=True
+    )
     
     return model, loss_fn, optimizer, scaler, scheduler
 
@@ -140,7 +148,11 @@ def main():
         # 1. Train & Validate
         train_loss, train_dice = run_epoch(train_loader, model, optimizer, loss_fn, scaler, config.DEVICE, mode='train')
         val_loss, val_dice = run_epoch(val_loader, model, None, loss_fn, None, config.DEVICE, mode='val')
-        scheduler.step(val_loss)
+        
+        # [Modified] Update Scheduler
+        # Unlike ReduceLROnPlateau, CosineAnnealingWarmRestarts does not need val_loss.
+        # It updates based on the epoch count.
+        scheduler.step()
 
         # 2. Logging
         current_lr = optimizer.param_groups[0]['lr']
